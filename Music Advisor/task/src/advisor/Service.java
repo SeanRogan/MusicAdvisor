@@ -2,7 +2,9 @@ package advisor;
 
 import java.util.*;
 
-public class Service { private final List<Album> newAlbums;
+public class Service {
+
+    private final List<Album> newAlbums;
 
     {
         newAlbums = new LinkedList<>();

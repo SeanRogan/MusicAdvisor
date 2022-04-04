@@ -6,6 +6,8 @@ import java.util.Locale;
 public class Controller {
     private Service service;
     public static boolean exit = false;
+    public static boolean authorized = false;
+    public final String oAuthLink = "https://accounts.spotify.com/authorize?client_id=b18942eaca6d48d0909ce9e208562bc0&redirect_uri=https://localhost:8080&response_type=code";
 
     public Controller(Service service) {
         this.service = service;
@@ -51,21 +53,37 @@ public class Controller {
         }
 
         switch (command[0]) {
+            case "auth" : {
+                System.out.println(oAuthLink);
+                System.out.println("---SUCCESS---");
+                authorized = true;
+            }
+            break;
             case "featured" :
-                featured();
+                if(authorized) {
+                    featured();
+                } else System.out.println("Please, provide access for application.");
+
                 break;
             case "new" :
-                newReleases();
+                if(authorized) {
+                    newReleases();
+                } else System.out.println("Please, provide access for application.");
                 break;
             case "categories" :
-                categories();
+                if(authorized) {
+                    categories();
+                } else System.out.println("Please, provide access for application.");
                 break;
             case "playlists" :
-                playlists(command[1]);
+                if(authorized) {
+                    playlists(command[0]);
+                } else System.out.println("Please, provide access for application.");
                 break;
-            case "exit" :
+            case "exit" : {
                 exit = true;
                 System.out.println("---GOODBYE!---");
+            }
                 break;
             default:
 
