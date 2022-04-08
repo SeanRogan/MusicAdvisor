@@ -63,7 +63,6 @@ public class Controller {
                 if(authorized) {
                     featured();
                 } else System.out.println("Please, provide access for application.");
-
                 break;
             case "new" :
                 if(authorized) {
