@@ -15,7 +15,7 @@ public class Server {
     private String clientSecret = "fdd54982e0b042d8b83696f6f3dc7e96";
     private String serverPath;
     private String accessCode = "";
-    private String redirectUri = "http://localhost:8080/";
+    private String redirectUri = "http://localhost:8080";
 
     public String getAccessCode() {
         return accessCode;

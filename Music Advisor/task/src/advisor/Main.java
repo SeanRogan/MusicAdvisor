@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        String serverPath = "https://accounts.spotify.com";
+        String serverPath = "https://accounts.spotify.com/";
         if(args[0].equals("-access")){
             serverPath = args[1].strip();
         }
