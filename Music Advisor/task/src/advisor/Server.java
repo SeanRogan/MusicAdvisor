@@ -17,9 +17,6 @@ public class Server {
     private String accessCode = "";
     private String redirectUri = "http://localhost:8080/";
 
-    public String getServerPath() {
-        return serverPath;
-    }
     public String getAccessCode() {
         return accessCode;
     }
@@ -67,14 +64,15 @@ public class Server {
                 "response:");
         HttpClient client = HttpClient.newBuilder().build();
         HttpRequest request = HttpRequest.newBuilder()
+                .header("Accept" , "application/json")
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .uri(URI.create(serverPath + "/api/token"))
                 .POST(HttpRequest.BodyPublishers.ofString(
                         "grant_type=authorization_code"
-                                + "&code=" + getAccessCode()
+                                + "&code=" + accessCode
                                 + "&client_id=" + clientID
                                 + "&client_secret=" + clientSecret
-                                + "&redirect_uri=" + getServerPath()))
+                                + "&redirect_uri=" + redirectUri))
                 .build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
