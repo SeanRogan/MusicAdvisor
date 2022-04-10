@@ -8,7 +8,7 @@ public class Controller {
     private Server httpServer;
     public static boolean exit = false;
     public static boolean authorized = false;
-    public final String oAuthLink = "https://accounts.spotify.com/authorize?client_id=b18942eaca6d48d0909ce9e208562bc0&redirect_uri=https://localhost:8080&response_type=code";
+    public final String oAuthLink = "https://accounts.spotify.com/authorize?client_id=b18942eaca6d48d0909ce9e208562bc0&redirect_uri=http://localhost:8080&response_type=code";
 
     public Controller(Service service, Server httpServer) {
         this.service = service;
@@ -58,9 +58,9 @@ public class Controller {
             case "auth" : {
                 //todo make this actually recieve an http request and respond.
                 System.out.println(oAuthLink);
+                httpServer.getAccess();
+                httpServer.getToken();
 
-
-                System.out.println("---SUCCESS---");
                 authorized = true;
             }
             break;
