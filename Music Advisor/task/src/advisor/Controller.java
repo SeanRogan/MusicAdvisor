@@ -5,14 +5,14 @@ import java.util.Locale;
 
 public class Controller {
     private Service service;
-    private Server httpServer;
+    private AuthServer httpAuthServer;
     public static boolean exit = false;
     public static boolean authorized = false;
     public final String oAuthLink = "https://accounts.spotify.com/authorize?client_id=b18942eaca6d48d0909ce9e208562bc0&redirect_uri=http://localhost:8080&response_type=code";
 
-    public Controller(Service service, Server httpServer) {
+    public Controller(Service service, AuthServer httpAuthServer) {
         this.service = service;
-        this.httpServer = httpServer;
+        this.httpAuthServer = httpAuthServer;
     }
 
     public void featured() {
@@ -58,8 +58,8 @@ public class Controller {
             case "auth" : {
                 //todo make this actually recieve an http request and respond.
                 System.out.println(oAuthLink);
-                httpServer.getAccess();
-                httpServer.getToken();
+                httpAuthServer.getAccess();
+                httpAuthServer.getToken();
 
                 authorized = true;
             }

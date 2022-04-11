@@ -10,12 +10,13 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 
-public class Server {
-    private String clientID = "b18942eaca6d48d0909ce9e208562bc0";
-    private String clientSecret = "fdd54982e0b042d8b83696f6f3dc7e96";
+public class AuthServer {
+    final private String clientID = "b18942eaca6d48d0909ce9e208562bc0";
+    final private String clientSecret = "fdd54982e0b042d8b83696f6f3dc7e96";
+    final private String redirectUri = "http://localhost:8080";
+    private String accessToken;
     private String serverPath;
     private String accessCode = "";
-    private String redirectUri = "http://localhost:8080";
 
     public String getAccessCode() {
         return accessCode;
@@ -24,7 +25,7 @@ public class Server {
         this.accessCode = accessCode;
     }
 
-    public Server(String serverPath) {
+    public AuthServer(String serverPath) {
         this.serverPath = serverPath;
 
     }
@@ -76,6 +77,7 @@ public class Server {
                 .build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            accessToken = response.body();
             System.out.println(response.body());
             System.out.println("---SUCCESS---");
         } catch(IOException | InterruptedException e) {
