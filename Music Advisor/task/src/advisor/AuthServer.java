@@ -16,13 +16,10 @@ public class AuthServer {
     final private String redirectUri = "http://localhost:8080";
     private String accessToken;
     private String serverPath;
-    private String accessCode = "";
+    private String authCode = "";
 
-    public String getAccessCode() {
-        return accessCode;
-    }
-    public void setAccessCode(String accessCode) {
-        this.accessCode = accessCode;
+    public void setAuthCode(String authCode) {
+        this.authCode = authCode;
     }
 
     public AuthServer(String serverPath) {
@@ -39,7 +36,7 @@ public class AuthServer {
                         String query = exchange.getRequestURI().getQuery();
                         String request;
                         if(query != null && query.contains("code")) {
-                            setAccessCode(query.substring(5));
+                            setAuthCode(query.substring(5));
                             System.out.println("Access code received");
                             request = "Got the code. Return back to your program.";
                         } else {
@@ -51,7 +48,7 @@ public class AuthServer {
                     });
             server.start();
             System.out.println("Waiting for code...");
-            while(getAccessCode().equals("")) {
+            while(authCode.equals("")) {
                 Thread.sleep(100);
             }
             server.stop(5);
@@ -70,7 +67,7 @@ public class AuthServer {
                 .uri(URI.create(serverPath + "/api/token"))
                 .POST(HttpRequest.BodyPublishers.ofString(
                         "grant_type=authorization_code"
-                                + "&code=" + accessCode
+                                + "&code=" + authCode
                                 + "&client_id=" + clientID
                                 + "&client_secret=" + clientSecret
                                 + "&redirect_uri=" + redirectUri))
