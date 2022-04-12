@@ -58,12 +58,15 @@ public class Controller {
 
         switch (command[0]) {
             case "auth" : {
-                //todo make this actually recieve an http request and respond.
                 System.out.println(oAuthLink);
                 httpAuthServer.getAccess();
-                httpAuthServer.getToken();
+                String accessToken = httpAuthServer.getToken();
+                if(accessToKenIsValid(accessToken)) {
                 authorized = true;
+                apiServer = new ApiServer(apiServerPath, accessToken);
+                } else System.out.println("Something went wrong with authorization...");
             }
+
             break;
             case "featured" :
                 if(authorized) {
@@ -91,6 +94,10 @@ public class Controller {
             }
                 break;
         }
+    }
+
+    private boolean accessToKenIsValid(String token) {
+        return token.contains("access_token");
     }
 
     public static boolean isExit() {
