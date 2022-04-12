@@ -7,6 +7,7 @@ public class ApiServer {
     private String redirectUri = "https://api.spotify.com/v1";
     private String accessToken;
 
+
     public String getAccessToken() {
         return accessToken;
     }
@@ -14,8 +15,15 @@ public class ApiServer {
         this.accessToken = accessToken;
     }
 
-    public ApiServer(String serverPath, String accessToken) {
+    public ApiServer(String serverPath, String accessTokenString) {
         this.serverPath = serverPath;
-        this.accessToken = accessToken;
+        accessToken = parseAccessToken(accessTokenString);
+    }
+
+    private String parseAccessToken(String accessTokenString) {
+        //todo parse json string and return the access token.
+        String accessToken = "";
+
+        return accessToken;
     }
 }
