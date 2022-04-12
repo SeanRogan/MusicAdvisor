@@ -10,11 +10,11 @@ public class Controller {
     public static boolean exit = false;
     public static boolean authorized = false;
     public final String oAuthLink = "https://accounts.spotify.com/authorize?client_id=b18942eaca6d48d0909ce9e208562bc0&redirect_uri=http://localhost:8080&response_type=code";
-
-    public Controller(Service service, AuthServer httpAuthServer,ApiServer apiServer) {
+    private String apiServerPath;
+    public Controller(Service service, AuthServer httpAuthServer,String apiServerPath) {
         this.service = service;
         this.httpAuthServer = httpAuthServer;
-        this.apiServer = apiServer;
+        this.apiServerPath = apiServerPath;
     }
 
     public void featured() {
@@ -62,7 +62,6 @@ public class Controller {
                 System.out.println(oAuthLink);
                 httpAuthServer.getAccess();
                 httpAuthServer.getToken();
-
                 authorized = true;
             }
             break;

@@ -57,7 +57,7 @@ public class AuthServer {
         }
     }
 
-    public void getToken() {
+    public boolean getToken() {
         System.out.println("making http request for access_token...\n" +
                 "response:");
         HttpClient client = HttpClient.newBuilder().build();
@@ -77,8 +77,10 @@ public class AuthServer {
             accessToken = response.body();
             System.out.println(response.body());
             System.out.println("---SUCCESS---");
+            return true;
         } catch(IOException | InterruptedException e) {
             e.printStackTrace();
+            return false;
         }
     }
 }
