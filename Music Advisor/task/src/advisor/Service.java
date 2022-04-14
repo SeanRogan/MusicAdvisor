@@ -43,15 +43,19 @@ public class Service {
     }
 
     public List<Album> getNew() {
+        server.getNewPlaylists();
         return newAlbums;
     }
     public List<Playlist> getFeatured() {
+        server.getFeaturedPlaylists();
         return featured;
     }
     public String[] getCategories() {
+        server.getCategories();
         return categories.keySet().toArray(String[]::new);
     }
     public List<Playlist> getPlaylists(String categoryName) {
+        server.getPlaylistByCategory(categoryName);
         Set<Playlist> category = categories.get(categoryName);
         if (category != null) {
             return new LinkedList<>(category);

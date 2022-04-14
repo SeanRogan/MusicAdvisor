@@ -10,7 +10,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-
+//todo the auth server should be responsible for getting the refresh token,
+// starting a countdown until the the token expires, and refreshing authorization
 
 public class AuthServer {
     final private String authUrl = "https://accounts.spotify.com/authorize?client_id=b18942eaca6d48d0909ce9e208562bc0&redirect_uri=http://localhost:8080&response_type=code";
@@ -94,11 +95,10 @@ public class AuthServer {
         processResponse(responseBody);
         return responseBody;
     }
-    //todo the auth server should be responsible for getting the refresh token,
-    // starting a countdown until the the token expires, and refreshing authorization
+
     private void processResponse(String responseBody) {
         JsonObject j = JsonParser.parseString(responseBody).getAsJsonObject();
-        accessToken = j.get("access_code").getAsString();
+        accessToken = j.get("access_token").getAsString();
         refreshToken = j.get("refresh_token").getAsString();
         countdown = j.get("expires_in").getAsInt();
     }

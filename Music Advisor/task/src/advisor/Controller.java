@@ -26,7 +26,7 @@ public class Controller {
         switch (command[0]) {
             case "auth" : {
                 String authRequestBody = httpAuthServer.getAccess();
-                if(authRequestBody != null && authRequestBody.contains("access_code")) {
+                if(authRequestBody != null && authRequestBody.contains("access_token")) {
                     authorized = true;
                     service = new Service(new ApiServer(apiServerPath,authRequestBody));
                 }
