@@ -18,7 +18,7 @@ public class Main {
         Scanner scan = new Scanner(System.in);
 
         AuthServer httpAuthServer = new AuthServer(authServerPath);
-        Controller controller = new Controller(new Service(), httpAuthServer, apiServerPath);
+        Controller controller = new Controller(httpAuthServer, apiServerPath);
 
         while (!Controller.isExit()) {
             controller.execute(scan.nextLine().split(" +"));

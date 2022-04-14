@@ -3,9 +3,12 @@ package advisor;
 import java.util.*;
 
 public class Service {
+    ApiServer server;
+    public Service(ApiServer server) {
+        this.server = server;
+    }
 
     private final List<Album> newAlbums;
-
     {
         newAlbums = new LinkedList<>();
 
@@ -14,9 +17,7 @@ public class Service {
         newAlbums.add(new Album("The Greatest Show [Panic! At The Disco]"));
         newAlbums.add(new Album("All Out Life [Slipknot]"));
     }
-
     private final List<Playlist> featured;
-
     {
         featured = new LinkedList<>();
 
@@ -25,9 +26,7 @@ public class Service {
         featured.add(new Playlist("Monday Motivation"));
         featured.add(new Playlist("Songs to Sing in the Shower"));
     }
-
     private final Map<String, Set<Playlist>> categories;
-
     {
         categories = new HashMap<>();
 
@@ -46,15 +45,12 @@ public class Service {
     public List<Album> getNew() {
         return newAlbums;
     }
-
     public List<Playlist> getFeatured() {
         return featured;
     }
-
     public String[] getCategories() {
         return categories.keySet().toArray(String[]::new);
     }
-
     public List<Playlist> getPlaylists(String categoryName) {
         Set<Playlist> category = categories.get(categoryName);
         if (category != null) {

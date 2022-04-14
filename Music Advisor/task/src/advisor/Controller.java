@@ -1,20 +1,63 @@
 package advisor;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import java.util.List;
 import java.util.Locale;
 
 public class Controller {
     private Service service;
-    private ApiServer apiServer;
     private AuthServer httpAuthServer;
     public static boolean exit = false;
     public static boolean authorized = false;
-    public final String oAuthLink = "https://accounts.spotify.com/authorize?client_id=b18942eaca6d48d0909ce9e208562bc0&redirect_uri=http://localhost:8080&response_type=code";
     private String apiServerPath;
-    public Controller(Service service, AuthServer httpAuthServer,String apiServerPath) {
-        this.service = service;
+    public Controller(AuthServer httpAuthServer,String apiServerPath) {
         this.httpAuthServer = httpAuthServer;
         this.apiServerPath = apiServerPath;
+    }
+
+
+    public void execute(String[] command) {
+        if (command.length < 1) {
+            return;
+        }
+
+        switch (command[0]) {
+            case "auth" : {
+                String authRequestBody = httpAuthServer.getAccess();
+                if(authRequestBody != null && authRequestBody.contains("access_code")) {
+                    authorized = true;
+                    service = new Service(new ApiServer(apiServerPath,authRequestBody));
+                }
+            }
+                break;
+            case "featured" :
+                if(authorized) {
+                    featured();
+                } else System.out.println("Please, provide access for application.");
+                break;
+            case "new" :
+                if(authorized) {
+                    newReleases();
+                } else System.out.println("Please, provide access for application.");
+                break;
+            case "categories" :
+                if(authorized) {
+                    categories();
+                } else System.out.println("Please, provide access for application.");
+                break;
+            case "playlists" :
+                if(authorized) {
+                    playlists(command[0]);
+                } else System.out.println("Please, provide access for application.");
+                break;
+            case "exit" : {
+                exit = true;
+                System.out.println("---GOODBYE!---");
+            }
+            break;
+        }
     }
 
     public void featured() {
@@ -51,50 +94,6 @@ public class Controller {
         }
     }
 
-    public void execute(String[] command) {
-        if (command.length < 1) {
-            return;
-        }
-
-        switch (command[0]) {
-            case "auth" : {
-                System.out.println(oAuthLink);
-                httpAuthServer.getAccess();
-                String accessToken = httpAuthServer.getToken();
-                if(accessToKenIsValid(accessToken)) {
-                authorized = true;
-                apiServer = new ApiServer(apiServerPath, accessToken);
-                } else System.out.println("Something went wrong with authorization...");
-            }
-
-            break;
-            case "featured" :
-                if(authorized) {
-                    featured();
-                } else System.out.println("Please, provide access for application.");
-                break;
-            case "new" :
-                if(authorized) {
-                    newReleases();
-                } else System.out.println("Please, provide access for application.");
-                break;
-            case "categories" :
-                if(authorized) {
-                    categories();
-                } else System.out.println("Please, provide access for application.");
-                break;
-            case "playlists" :
-                if(authorized) {
-                    playlists(command[0]);
-                } else System.out.println("Please, provide access for application.");
-                break;
-            case "exit" : {
-                exit = true;
-                System.out.println("---GOODBYE!---");
-            }
-                break;
-        }
-    }
 
     private boolean accessToKenIsValid(String token) {
         return token.contains("access_token");

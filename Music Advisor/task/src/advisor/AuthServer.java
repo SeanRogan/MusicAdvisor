@@ -1,5 +1,7 @@
 package advisor;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
@@ -11,12 +13,17 @@ import java.net.http.HttpResponse;
 
 
 public class AuthServer {
+    final private String authUrl = "https://accounts.spotify.com/authorize?client_id=b18942eaca6d48d0909ce9e208562bc0&redirect_uri=http://localhost:8080&response_type=code";
+
     final private String clientID = "b18942eaca6d48d0909ce9e208562bc0";
     final private String clientSecret = "fdd54982e0b042d8b83696f6f3dc7e96";
-    final private String redirectUri = "http://localhost:8080";
-    private String accessToken;
+    private String redirectUri = "http://localhost:8080";
+    private String authorizationResponse;
     private String serverPath;
     private String authCode = "";
+    private String refreshToken;
+    private String accessToken;
+    public int countdown;
 
     public void setAuthCode(String authCode) {
         this.authCode = authCode;
@@ -27,12 +34,12 @@ public class AuthServer {
 
     }
 
-    public void getAccess(){
+    public String getAccess(){
+        System.out.println(authUrl);
         try {
             HttpServer server = HttpServer.create();
             server.bind(new InetSocketAddress(8080), 0);
-            server.createContext("/",
-                    (HttpExchange exchange) -> {
+            server.createContext("/", (HttpExchange exchange) -> {
                         String query = exchange.getRequestURI().getQuery();
                         String request;
                         if(query != null && query.contains("code")) {
@@ -55,9 +62,13 @@ public class AuthServer {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+        authorizationResponse = getToken();
+        if(authorizationResponse.contains("access_token")) return authorizationResponse;
+        else return null;
     }
 
-    public String getToken() {
+    private String getToken() {
+        String responseBody = "";
         System.out.println("making http request for access_token...\n" +
                 "response:");
         HttpClient client = HttpClient.newBuilder().build();
@@ -74,14 +85,30 @@ public class AuthServer {
                 .build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            accessToken = response.body();
+            responseBody = response.body();
             System.out.println(response.body());
             System.out.println("---SUCCESS---");
         } catch(IOException | InterruptedException e) {
             e.printStackTrace();
-
         }
-        return accessToken;
+        processResponse(responseBody);
+        return responseBody;
     }
+    //todo the auth server should be responsible for getting the refresh token,
+    // starting a countdown until the the token expires, and refreshing authorization
+    private void processResponse(String responseBody) {
+        JsonObject j = JsonParser.parseString(responseBody).getAsJsonObject();
+        accessToken = j.get("access_code").getAsString();
+        refreshToken = j.get("refresh_token").getAsString();
+        countdown = j.get("expires_in").getAsInt();
+    }
+    private void refreshAccess() {
+
+    }
+
+
+
+
+
 }
 
