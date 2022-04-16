@@ -4,8 +4,8 @@ import java.util.List;
 
 public class Playlist {
     private String title;
-    private List<Track> tracks;
-
+    private String playlistUri;
+    private String link;
     public Playlist(String title) {
         this.title = title;
     }

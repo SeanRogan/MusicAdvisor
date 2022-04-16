@@ -3,6 +3,7 @@ package advisor;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -78,9 +79,9 @@ public class Controller {
 
     public void categories() {
         System.out.println("---CATEGORIES---");
-        String[] categories = service.getCategories();
-        for (String category : categories) {
-            System.out.println(category);
+        ArrayList<Category> categories= service.getCategories();
+        for (Category category : categories) {
+            System.out.println(category.getName());
         }
     }
 

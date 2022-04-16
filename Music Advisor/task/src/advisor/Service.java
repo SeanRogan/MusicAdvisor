@@ -8,15 +8,8 @@ public class Service {
         this.server = server;
     }
 
-    private final List<Album> newAlbums;
-    {
-        newAlbums = new LinkedList<>();
+    private final List<Album> newAlbums= null;
 
-        newAlbums.add(new Album("Mountains [Sia, Diplo, Labrinth]"));
-        newAlbums.add(new Album("Runaway [Lil Peep]"));
-        newAlbums.add(new Album("The Greatest Show [Panic! At The Disco]"));
-        newAlbums.add(new Album("All Out Life [Slipknot]"));
-    }
     private final List<Playlist> featured;
     {
         featured = new LinkedList<>();
@@ -43,16 +36,15 @@ public class Service {
     }
 
     public List<Album> getNew() {
-        server.getNewPlaylists();
+        server.getNewAlbums();
         return newAlbums;
     }
     public List<Playlist> getFeatured() {
         server.getFeaturedPlaylists();
         return featured;
     }
-    public String[] getCategories() {
-        server.getCategories();
-        return categories.keySet().toArray(String[]::new);
+    public ArrayList<Category> getCategories() {
+        return server.getCategories();
     }
     public List<Playlist> getPlaylists(String categoryName) {
         server.getPlaylistByCategory(categoryName);

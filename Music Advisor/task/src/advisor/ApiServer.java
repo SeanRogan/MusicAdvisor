@@ -1,17 +1,18 @@
 package advisor;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 
-//todo build methods to process the Json responses into java objects.
+
 public class ApiServer {
-    private String featuredReleases = "https://api.spotify.com/v1/browse/featured-playlists";
+    private String featuredPlaylists = "https://api.spotify.com/v1/browse/featured-playlists";
     private String newReleases = "https://api.spotify.com/v1/browse/new-releases";
     private String playlistByCategory = "https://api.spotify.com/v1/browse/categories/%s/playlists";
     private String allCategories = "https://api.spotify.com/v1/browse/categories";
@@ -28,7 +29,7 @@ public class ApiServer {
             this.accessToken = accessToken;
         }
     */
-    public String getNewPlaylists() {
+    public void getNewAlbums() {
         String responseBody = "";
         //http client sends request and handles response
         HttpClient client = HttpClient.newBuilder().build();
@@ -46,11 +47,19 @@ public class ApiServer {
         }catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        return responseBody;
+
         //todo parse the json into corresponding POJOs (album playlist track, prbly need an artist class?)
-        //JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
+        JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
+        JsonArray albumArray = json.getAsJsonArray("album");
+        ArrayList<JsonElement> albumList = new ArrayList<>();
+        for(int i = 0;i<albumArray.size();i++) {
+            albumList.add(albumArray.get(i));
+        }
+        Gson gson = new Gson();
+
         //JsonObject items = json.getAsJsonObject("items");
     }
+
     public String getFeaturedPlaylists() {
         String responseBody = "";
         //http client sends request and handles response
@@ -59,7 +68,7 @@ public class ApiServer {
                 //access token for authorization
                 .header("Authorization", "Bearer " + accessToken)
                 //redirect path, where the resources are requested from
-                .uri(URI.create(featuredReleases))
+                .uri(URI.create(featuredPlaylists))
                 .GET()
                 .build();
         try {
@@ -70,13 +79,22 @@ public class ApiServer {
         }catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+        Gson gson = new Gson();
+        gson.fromJson(responseBody,Category.class);
         //todo parse the json into corresponding POJOs (album playlist track, prbly need an artist class?)
-        //JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
-        //JsonObject items = json.getAsJsonObject("items");
+        JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
+        JsonArray featuredPlaylistArray = json.getAsJsonArray("albums");
+        ArrayList<JsonElement> featuredPlaylistList = new ArrayList<>();
+        for(int i = 0;i<featuredPlaylistArray.size();i++) {
+            featuredPlaylistList.add(featuredPlaylistArray.get(i));
+        }
+
+
 
 return responseBody;
     }
-    public String getCategories() {
+    public ArrayList<Category> getCategories() {
+        ArrayList<Category> categories = new ArrayList<>();
         String responseBody = "";
         //http client sends request and handles response
         HttpClient client = HttpClient.newBuilder().build();
@@ -91,15 +109,19 @@ return responseBody;
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             responseBody = response.body();
-            System.out.println(responseBody);
         }catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        //todo parse the json into corresponding POJOs (album playlist track, prbly need an artist class?)
-        //JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
-        //JsonObject items = json.getAsJsonObject("items");
 
-        return responseBody;
+        JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
+    JsonObject cat = json.get("categories").getAsJsonObject();
+    JsonArray items = cat.get("items").getAsJsonArray();
+        //ArrayList<Object> categoriesArray = new ArrayList<>();
+        for(int i = 0; i<items.size(); i++) {
+        JsonObject item = items.get(i).getAsJsonObject();
+        categories.add(new Category(item.get("name").getAsString(), item.get("id").getAsString(), item.get("href").getAsString()));
+    }
+        return categories;
     }
     public String getPlaylistByCategory(String categoryName) {
         String responseBody = "";
@@ -123,9 +145,8 @@ return responseBody;
             e.printStackTrace();
         }
         //todo parse the json into corresponding POJOs (album playlist track, prbly need an artist class?)
-        //JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
-        //JsonObject items = json.getAsJsonObject("items");
-
+        JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
+        json.getAsJsonObject("");
         return responseBody;
     }
 

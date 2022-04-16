@@ -5,9 +5,11 @@ import java.util.List;
 public class Album {
     private String title;
     private List<Track> tracks;
-
-    public Album(String title) {
+    private String artist;
+    public Album(String title, String artist, List<Track> tracks) {
         this.title = title;
+        this.tracks = tracks;
+        this.artist = artist;
     }
 
     public String getTitle() {
