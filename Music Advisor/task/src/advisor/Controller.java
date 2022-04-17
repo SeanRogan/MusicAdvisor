@@ -79,8 +79,7 @@ public class Controller {
 
     public void categories() {
         System.out.println("---CATEGORIES---");
-        ArrayList<Category> categories= service.getCategories();
-        for (Category category : categories) {
+        for (Category category : service.getCategories()) {
             System.out.println(category.getName());
         }
     }

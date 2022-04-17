@@ -8,7 +8,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.rmi.AlreadyBoundException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class ApiServer {
@@ -29,7 +31,8 @@ public class ApiServer {
             this.accessToken = accessToken;
         }
     */
-    public void getNewAlbums() {
+    public List<Album> getNewAlbums() {
+        List<Album> albumArrayList = null;
         String responseBody = "";
         //http client sends request and handles response
         HttpClient client = HttpClient.newBuilder().build();
@@ -51,13 +54,14 @@ public class ApiServer {
         //todo parse the json into corresponding POJOs (album playlist track, prbly need an artist class?)
         JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
         JsonArray albumArray = json.getAsJsonArray("album");
-        ArrayList<JsonElement> albumList = new ArrayList<>();
+        List<JsonElement> albumList = new ArrayList<>();
         for(int i = 0;i<albumArray.size();i++) {
             albumList.add(albumArray.get(i));
         }
         Gson gson = new Gson();
 
         //JsonObject items = json.getAsJsonObject("items");
+        return albumArrayList;
     }
 
     public String getFeaturedPlaylists() {
@@ -93,8 +97,8 @@ public class ApiServer {
 
 return responseBody;
     }
-    public ArrayList<Category> getCategories() {
-        ArrayList<Category> categories = new ArrayList<>();
+    public List<Category> getCategories() {
+        List<Category> categories = new ArrayList<>();
         String responseBody = "";
         //http client sends request and handles response
         HttpClient client = HttpClient.newBuilder().build();
@@ -123,7 +127,8 @@ return responseBody;
     }
         return categories;
     }
-    public String getPlaylistByCategory(String categoryName) {
+    public List<Playlist> getPlaylistByCategory(String categoryName) {
+        List<Playlist> list = new ArrayList<>();
         String responseBody = "";
         //take categoryName argument and insert in uri
         String categorySpecificUri = String.format(playlistByCategory , categoryName);
@@ -147,7 +152,7 @@ return responseBody;
         //todo parse the json into corresponding POJOs (album playlist track, prbly need an artist class?)
         JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
         json.getAsJsonObject("");
-        return responseBody;
+        return list;
     }
 
     public ApiServer(String serverPath, String authRequestBody) {
