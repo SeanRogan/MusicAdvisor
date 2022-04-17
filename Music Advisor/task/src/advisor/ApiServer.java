@@ -10,6 +10,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.rmi.AlreadyBoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -53,18 +54,64 @@ public class ApiServer {
 
         //todo parse the json into corresponding POJOs (album playlist track, prbly need an artist class?)
         JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
-        JsonArray albumArray = json.getAsJsonArray("album");
-        List<JsonElement> albumList = new ArrayList<>();
-        for(int i = 0;i<albumArray.size();i++) {
-            albumList.add(albumArray.get(i));
-        }
-        Gson gson = new Gson();
+        JsonObject albumsObj = json.getAsJsonObject("albums");
+        JsonArray items = albumsObj.getAsJsonArray("items");
+        List<Album> albumList = new ArrayList<>();
 
-        //JsonObject items = json.getAsJsonObject("items");
-        return albumArrayList;
+        for(int i = 0;i<items.size();i++) {
+            JsonObject item = items.get(i).getAsJsonObject();
+            JsonArray artistsInfo = item.get("artists").getAsJsonArray();
+            if(artistsInfo.size() > 1) {
+                String[] artistsNames = new String[artistsInfo.size()];
+                    for(int j = 0;j < artistsInfo.size(); j++) {
+                        JsonObject ai = artistsInfo.get(j).getAsJsonObject();
+                        artistsNames[j] = ai.get("name").getAsString();
+                    }
+                String stringOfArtists = Arrays.toString(artistsNames);
+                albumList.add(new Album(item.get("name").getAsString(), stringOfArtists, item.get("href").getAsString()));
+
+            }
+
+            if(artistsInfo.size() == 1) {
+                JsonObject ai = artistsInfo.get(0).getAsJsonObject();
+                String artistsName = ai.get("name").getAsString();
+                albumList.add(new Album(item.get("name").getAsString(), artistsName, item.get("href").getAsString()));
+            }
+        }
+        return albumList;
     }
 
-    public String getFeaturedPlaylists() {
+    public List<Category> getCategories() {
+        List<Category> categories = new ArrayList<>();
+        String responseBody = "";
+        //http client sends request and handles response
+        HttpClient client = HttpClient.newBuilder().build();
+        HttpRequest request = HttpRequest.newBuilder()
+                //access token for authorization
+                .header("Authorization", "Bearer " + accessToken)
+                //redirect path, where the resources are requested from
+                .uri(URI.create(allCategories))
+                .GET()
+                .build();
+        try {
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            responseBody = response.body();
+        }catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
+        JsonObject cat = json.get("categories").getAsJsonObject();
+        JsonArray items = cat.get("items").getAsJsonArray();
+        for(int i = 0; i<items.size(); i++) {
+            JsonObject item = items.get(i).getAsJsonObject();
+            categories.add(new Category(item.get("name").getAsString(), item.get("id").getAsString(), item.get("href").getAsString()));
+        }
+        return categories;
+    }
+    public List<Playlist> getFeaturedPlaylists() {
+        List<Playlist> list = new ArrayList<>();
         String responseBody = "";
         //http client sends request and handles response
         HttpClient client = HttpClient.newBuilder().build();
@@ -92,40 +139,7 @@ public class ApiServer {
         for(int i = 0;i<featuredPlaylistArray.size();i++) {
             featuredPlaylistList.add(featuredPlaylistArray.get(i));
         }
-
-
-
-return responseBody;
-    }
-    public List<Category> getCategories() {
-        List<Category> categories = new ArrayList<>();
-        String responseBody = "";
-        //http client sends request and handles response
-        HttpClient client = HttpClient.newBuilder().build();
-        HttpRequest request = HttpRequest.newBuilder()
-                //access token for authorization
-                .header("Authorization", "Bearer " + accessToken)
-                //redirect path, where the resources are requested from
-                .uri(URI.create(allCategories))
-                .GET()
-                .build();
-        try {
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            responseBody = response.body();
-        }catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
-    JsonObject cat = json.get("categories").getAsJsonObject();
-    JsonArray items = cat.get("items").getAsJsonArray();
-        //ArrayList<Object> categoriesArray = new ArrayList<>();
-        for(int i = 0; i<items.size(); i++) {
-        JsonObject item = items.get(i).getAsJsonObject();
-        categories.add(new Category(item.get("name").getAsString(), item.get("id").getAsString(), item.get("href").getAsString()));
-    }
-        return categories;
+        return list;
     }
     public List<Playlist> getPlaylistByCategory(String categoryName) {
         List<Playlist> list = new ArrayList<>();

@@ -10,28 +10,16 @@ public class Service {
         this.server = server;
     }
 
-    private List<Album> newAlbums= null;
-
-    private List<Playlist> featured;
-
-    private List<Category> categories;
-
-
     public List<Album> getNew() {
-        newAlbums = server.getNewAlbums();
-        return newAlbums;
+        return server.getNewAlbums();
     }
     public List<Playlist> getFeatured() {
-        server.getFeaturedPlaylists();
-        return featured;
+        return server.getFeaturedPlaylists();
     }
     public List<Category> getCategories() {
-        categories = server.getCategories();
-        return categories;
+        return server.getCategories();
     }
     public List<Playlist> getPlaylists(String categoryName) {
-        List<Playlist> list= server.getPlaylistByCategory(categoryName);
-
-        return list;
+        return server.getPlaylistByCategory(categoryName);
     }
 }
