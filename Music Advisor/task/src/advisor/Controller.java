@@ -1,5 +1,6 @@
 package advisor;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -16,10 +17,18 @@ public class Controller {
     }
 
     public void execute(String[] command) {
+        boolean commandIsValid = false;
         if (command.length < 1) {
             return;
         }
-
+        if(command[0].contains("auth") ||
+                command[0].contains("playlists") ||
+                command[0].contains("new") ||
+                command[0].contains("featured") ||
+                command[0].contains("categories")) {
+                commandIsValid = true;
+        }
+        if(commandIsValid){
         switch (command[0]) {
             case "auth" : {
                 String authRequestBody = httpAuthServer.getAccess();
@@ -28,7 +37,7 @@ public class Controller {
                     service = new Service(new ApiServer(apiServerPath,authRequestBody));
                 }
             }
-                break;
+            break;
             case "featured" :
                 if(authorized) {
                     featured();
@@ -46,7 +55,13 @@ public class Controller {
                 break;
             case "playlists" :
                 if(authorized) {
-                    playlists(command[0]);
+                    //ensure there is a category specified.
+                    if(command.length < 2) {
+                        System.out.println("Please enter a category you would like to see the playlists for!");
+                        break;
+                    }
+                    playlists(command);
+
                 } else System.out.println("Please, provide access for application.");
                 break;
             case "exit" : {
@@ -55,6 +70,8 @@ public class Controller {
             }
             break;
         }
+        }
+        else System.out.println("Please enter one of the following commands: auth, new, featured, categories, or playlists + category name\n");
     }
 
     public void featured() {
@@ -81,19 +98,26 @@ public class Controller {
         }
     }
 
-    public void playlists(String categoryName) {
+    public void playlists(String[] commands) {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 1; i < commands.length; i++) {
+            sb.append(commands[i]);
+            if(i != commands.length-1) sb.append(" ");
+        }
+        String categoryName = sb.toString();
         String categoryId = "";
         for(Category category : service.getCategories()){
-            if(category.getName().equals(categoryName)) {
+            if(category.getName().equalsIgnoreCase(categoryName.toLowerCase())) {
                 categoryId = category.getCategoryId();
+                if (!categoryId.isEmpty()) break;
             }
         }
-        //need someway to use category name to get category ID
         List<Playlist> playlists = service.getPlaylistByCategory(categoryId);
         if (playlists != null && !playlists.isEmpty()) {
             System.out.println("---" + categoryName.toUpperCase(Locale.ROOT) + " PLAYLISTS---");
             for (Playlist playlist : playlists) {
                 System.out.println(playlist.getTitle());
+                System.out.println(playlist.getLink() + "\n");
             }
         }
     }

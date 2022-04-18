@@ -7,11 +7,12 @@ public class Album {
     private String title;
     private String link;
     private String artist;
-
-    public Album(String title, String artist, String link) {
+    private String id;
+    public Album(String title, String artist, String link, String id) {
         this.title = title;
         this.link = link;
         this.artist = artist;
+        this.id = id;
     }
 
     public String getTitle() {

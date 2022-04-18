@@ -3,30 +3,33 @@ package advisor;
 import com.google.gson.*;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.rmi.AlreadyBoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 
 public class ApiServer {
-    private String featuredPlaylists = "https://api.spotify.com/v1/browse/featured-playlists";
-    private String newReleases = "https://api.spotify.com/v1/browse/new-releases";
-    private String playlistByCategory = "https://api.spotify.com/v1/browse/categories/%s/playlists";
-    private String allCategories = "https://api.spotify.com/v1/browse/categories";
     final private String clientID = "b18942eaca6d48d0909ce9e208562bc0";
     final private String clientSecret = "fdd54982e0b042d8b83696f6f3dc7e96";
     final private String redirectUri = "https://api.spotify.com/v1";
+    private String featuredPlaylists = "/v1/browse/featured-playlists";
+    private String newReleases = "/v1/browse/new-releases";
+    private String playlistByCategory = "/v1/browse/categories/%s/playlists";
+    private String allCategories = "/v1/browse/categories";
     private String serverPath = "https://api.spotify.com";
     private String accessToken;
 
+    public ApiServer(String serverPath, String authRequestBody) {
+        this.serverPath = serverPath;
+        accessToken = parseAccessToken(authRequestBody);
+    }
+
     public List<Album> getNewAlbums() {
-        List<Album> albumArrayList = null;
+
         String responseBody = "";
         //http client sends request and handles response
         HttpClient client = HttpClient.newBuilder().build();
@@ -34,7 +37,7 @@ public class ApiServer {
                 //access token for authorization
                 .header("Authorization", "Bearer " + accessToken)
                 //redirect path, where the resources are requested from
-                .uri(URI.create(newReleases))
+                .uri(URI.create(serverPath + newReleases))
                 .GET()
                 .build();
         try {
@@ -46,12 +49,22 @@ public class ApiServer {
         }
 
         JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
+        //get albums as json object from json response
         JsonObject albumsObj = json.getAsJsonObject("albums");
+        //get json array of album json object
         JsonArray items = albumsObj.getAsJsonArray("items");
+        //instantiate list to hold album java objects
         List<Album> albumList = new ArrayList<>();
-
+        //loop through array of albums
         for(int i = 0;i<items.size();i++) {
+            //get first array element as jsonObj
             JsonObject item = items.get(i).getAsJsonObject();
+            JsonObject extUrls = item.get("external_urls").getAsJsonObject();
+            //get external url
+            String url = extUrls.get("spotify").getAsString();
+            //get album id
+            String id = item.get("id").getAsString();
+            //get json array of artists
             JsonArray artistsInfo = item.get("artists").getAsJsonArray();
             //if multiple artists on album
             if(artistsInfo.size() > 1) {
@@ -64,16 +77,19 @@ public class ApiServer {
                 String stringOfArtists = Arrays.toString(artistsNames);
                 albumList.add(new Album(item.get("name").getAsString()
                         ,stringOfArtists
-                        ,item.get("href").getAsString()));
+                        ,url
+                        ,id));
 
             }
             //if only one artist on album
             if(artistsInfo.size() == 1) {
                 JsonObject ai = artistsInfo.get(0).getAsJsonObject();
-                String artistsName = ai.get("name").getAsString();
+                String [] artistsNames = new String[] {ai.get("name").getAsString()};
+
                 albumList.add(new Album(item.get("name").getAsString()
-                        ,artistsName
-                        ,item.get("href").getAsString()));
+                        ,Arrays.toString(artistsNames)
+                        ,url
+                        ,id));
             }
         }
         return albumList;
@@ -88,7 +104,7 @@ public class ApiServer {
                 //access token for authorization
                 .header("Authorization", "Bearer " + accessToken)
                 //redirect path, where the resources are requested from
-                .uri(URI.create(allCategories))
+                .uri(URI.create(serverPath + allCategories))
                 .GET()
                 .build();
         try {
@@ -118,7 +134,7 @@ public class ApiServer {
                 //access token for authorization
                 .header("Authorization", "Bearer " + accessToken)
                 //redirect path, where the resources are requested from
-                .uri(URI.create(featuredPlaylists))
+                .uri(URI.create(serverPath + featuredPlaylists))
                 .GET()
                 .build();
         try {
@@ -134,18 +150,19 @@ public class ApiServer {
         JsonArray playlistArray = playlistsObj.getAsJsonArray("items");
         for(int i = 0; i < playlistArray.size(); i++) {
             JsonObject jo = playlistArray.get(i).getAsJsonObject();
-            list.add(new Playlist(jo.get("name").getAsString(), jo.get("href").getAsString()));
+            JsonObject extUrls = jo.getAsJsonObject("external_urls");
+            String url = extUrls.get("spotify").getAsString();
+            list.add(new Playlist(jo.get("name").getAsString(), url));
         }
         return list;
     }
 
     public List<Playlist> getPlaylistByCategory(String categoryId) {
-        //todo last feature to make. need to make sure categoryId being passed is legit,
-        // and that function to check id by name is working, then be sure custom string is working
         List<Playlist> list = new ArrayList<>();
         String responseBody = "";
         //take categoryId argument and insert in uri
-        String categorySpecificUri = String.format(playlistByCategory , categoryId);
+        String genericCatURI = serverPath + playlistByCategory;
+        String categorySpecificUri = String.format(genericCatURI , categoryId);
         //http client sends request and handles response
         HttpClient client = HttpClient.newBuilder().build();
         HttpRequest request = HttpRequest.newBuilder()
@@ -159,18 +176,45 @@ public class ApiServer {
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             responseBody = response.body();
-            System.out.println(responseBody);
+
         }catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+        if(checkForErrorCode(responseBody)) {
+            return null;
+        }
         JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
-        JsonObject items = json.getAsJsonObject("items");
+        JsonObject playlists = json.getAsJsonObject("playlists");
+        JsonArray items = playlists.getAsJsonArray("items");
+        for(int i = 0; i < items.size(); i++) {
+            JsonObject jo = items.get(i).getAsJsonObject();
+            JsonObject extUrls = jo.get("external_urls").getAsJsonObject();
+            String url = extUrls.get("spotify").getAsString();
+            list.add(new Playlist(jo.get("name").getAsString(), url));
+        }
         return list;
     }
 
-    public ApiServer(String serverPath, String authRequestBody) {
-        this.serverPath = serverPath;
-        accessToken = parseAccessToken(authRequestBody);
+    private boolean checkForErrorCode(String responseBody) {
+        JsonObject error;
+        JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
+        try {
+            error = json.getAsJsonObject("error");
+
+            if(error != null && error.get("message").getAsString().contains("id doesn't exist")) {
+                System.out.println("Unknown category name.");
+                return true;
+            }
+            if (error != null && (!error.get("message").getAsString().contains("id doesn't exist"))) {
+                System.out.println(error.get("message").getAsString());
+                System.out.println("Status code: " + error.get("status").getAsString());
+                return true;
+            }} catch (NullPointerException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return false;
     }
 
     private String parseAccessToken(String authRequestBody) {

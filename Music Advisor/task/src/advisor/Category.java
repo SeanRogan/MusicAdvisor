@@ -8,6 +8,7 @@ public class Category {
         this.name = name;
         this.categoryId = id;
         this.href = href;
+
     }
 
     public String getCategoryId() {
