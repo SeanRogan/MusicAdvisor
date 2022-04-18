@@ -16,10 +16,6 @@ public class ApiServer {
     final private String clientID = "b18942eaca6d48d0909ce9e208562bc0";
     final private String clientSecret = "fdd54982e0b042d8b83696f6f3dc7e96";
     final private String redirectUri = "https://api.spotify.com/v1";
-    private String featuredPlaylists = "/v1/browse/featured-playlists";
-    private String newReleases = "/v1/browse/new-releases";
-    private String playlistByCategory = "/v1/browse/categories/%s/playlists";
-    private String allCategories = "/v1/browse/categories";
     private String serverPath = "https://api.spotify.com";
     private String accessToken;
 
@@ -33,6 +29,7 @@ public class ApiServer {
         String responseBody = "";
         //http client sends request and handles response
         HttpClient client = HttpClient.newBuilder().build();
+        String newReleases = "/v1/browse/new-releases";
         HttpRequest request = HttpRequest.newBuilder()
                 //access token for authorization
                 .header("Authorization", "Bearer " + accessToken)
@@ -47,7 +44,9 @@ public class ApiServer {
         }catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-
+        if(checkForErrorCode(responseBody)) {
+            return null;
+        }
         JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
         //get albums as json object from json response
         JsonObject albumsObj = json.getAsJsonObject("albums");
@@ -100,6 +99,7 @@ public class ApiServer {
         String responseBody = "";
         //http client sends request and handles response
         HttpClient client = HttpClient.newBuilder().build();
+        String allCategories = "/v1/browse/categories";
         HttpRequest request = HttpRequest.newBuilder()
                 //access token for authorization
                 .header("Authorization", "Bearer " + accessToken)
@@ -114,7 +114,9 @@ public class ApiServer {
         }catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-
+        if(checkForErrorCode(responseBody)) {
+            return null;
+        }
         JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
         JsonObject cat = json.get("categories").getAsJsonObject();
         JsonArray items = cat.get("items").getAsJsonArray();
@@ -130,6 +132,7 @@ public class ApiServer {
         String responseBody = "";
         //http client sends request and handles response
         HttpClient client = HttpClient.newBuilder().build();
+        String featuredPlaylists = "/v1/browse/featured-playlists";
         HttpRequest request = HttpRequest.newBuilder()
                 //access token for authorization
                 .header("Authorization", "Bearer " + accessToken)
@@ -144,6 +147,9 @@ public class ApiServer {
 
         }catch (IOException | InterruptedException e) {
             e.printStackTrace();
+        }
+        if(checkForErrorCode(responseBody)) {
+            return null;
         }
         JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
         JsonObject playlistsObj = json.get("playlists").getAsJsonObject();
@@ -161,6 +167,7 @@ public class ApiServer {
         List<Playlist> list = new ArrayList<>();
         String responseBody = "";
         //take categoryId argument and insert in uri
+        String playlistByCategory = "/v1/browse/categories/%s/playlists";
         String genericCatURI = serverPath + playlistByCategory;
         String categorySpecificUri = String.format(genericCatURI , categoryId);
         //http client sends request and handles response
@@ -209,7 +216,8 @@ public class ApiServer {
                 System.out.println(error.get("message").getAsString());
                 System.out.println("Status code: " + error.get("status").getAsString());
                 return true;
-            }} catch (NullPointerException e) {
+            }
+        } catch (NullPointerException e) {
             e.printStackTrace();
             return false;
         }
