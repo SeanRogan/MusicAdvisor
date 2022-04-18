@@ -7,6 +7,7 @@ public class Album {
     private String title;
     private String link;
     private String artist;
+
     public Album(String title, String artist, String link) {
         this.title = title;
         this.link = link;
@@ -15,6 +16,9 @@ public class Album {
 
     public String getTitle() {
         return title;
+    }
+    public String getLink() {
+        return link;
     }
     public String getArtists() {return artist;}
 

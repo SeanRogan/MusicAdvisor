@@ -1,9 +1,5 @@
 package advisor;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -13,11 +9,11 @@ public class Controller {
     public static boolean exit = false;
     public static boolean authorized = false;
     private String apiServerPath;
+
     public Controller(AuthServer httpAuthServer,String apiServerPath) {
         this.httpAuthServer = httpAuthServer;
         this.apiServerPath = apiServerPath;
     }
-
 
     public void execute(String[] command) {
         if (command.length < 1) {
@@ -66,6 +62,7 @@ public class Controller {
         List<Playlist> playlists = service.getFeatured();
         for (Playlist playlist : playlists) {
             System.out.println(playlist.getTitle());
+            System.out.println(playlist.getLink() + "\n");
         }
     }
 
@@ -73,7 +70,7 @@ public class Controller {
         System.out.println("---NEW RELEASES---");
         List<Album> albums = service.getNew();
         for (Album album : albums) {
-            System.out.println(album.getTitle());
+            System.out.println(album.getTitle() + "\n" + album.getArtists() + "\n" + album.getLink() + "\n");
         }
     }
 
@@ -85,7 +82,14 @@ public class Controller {
     }
 
     public void playlists(String categoryName) {
-        List<Playlist> playlists = service.getPlaylists(categoryName);
+        String categoryId = "";
+        for(Category category : service.getCategories()){
+            if(category.getName().equals(categoryName)) {
+                categoryId = category.getCategoryId();
+            }
+        }
+        //need someway to use category name to get category ID
+        List<Playlist> playlists = service.getPlaylistByCategory(categoryId);
         if (playlists != null && !playlists.isEmpty()) {
             System.out.println("---" + categoryName.toUpperCase(Locale.ROOT) + " PLAYLISTS---");
             for (Playlist playlist : playlists) {
@@ -93,7 +97,6 @@ public class Controller {
             }
         }
     }
-
 
     private boolean accessToKenIsValid(String token) {
         return token.contains("access_token");

@@ -19,7 +19,7 @@ public class Service {
     public List<Category> getCategories() {
         return server.getCategories();
     }
-    public List<Playlist> getPlaylists(String categoryName) {
+    public List<Playlist> getPlaylistByCategory(String categoryName) {
         return server.getPlaylistByCategory(categoryName);
     }
 }

@@ -1,17 +1,18 @@
 package advisor;
 
-import java.util.List;
-
 public class Playlist {
     private String title;
-    private String playlistUri;
+
     private String link;
-    public Playlist(String title) {
+    public Playlist(String title, String link) {
         this.title = title;
+        this.link = link;
     }
 
     public String getTitle() {
         return title;
     }
-
+    public String getLink() {
+        return link;
+    }
 }
