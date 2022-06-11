@@ -1,0 +1,2 @@
+# MusicAdvisor
+The music advisor project hyperskill.com. A demo project to interact with the spotify.com API, learn about the 0auth protocol and how to use Json Web Token based authentification and authorization. The program is a command line application that first obtains an access token to the spotify api, then uses the token to request and return information about New Artists, Featured Artists, Popular Playlists and Playlists by Category.
