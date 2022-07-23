@@ -12,7 +12,7 @@ class Attach {
         this.func = func;
     }
 }
-
+//***TESTS CREATED BY HYPERSKILL.ORG TEAM***
 public class MusicAdvisorTest extends StageTest<Attach> {
 
     @Override
